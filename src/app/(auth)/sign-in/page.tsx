@@ -1,14 +1,19 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
+import { ButtonGradient } from '@/components/ui/buttonGradient'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { auth } from '@/firebase/client'
+import { signIn } from '@/lib/actions/auth'
 import { cn } from '@/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
-import Image from 'next/image'
+import { signInWithEmailAndPassword } from 'firebase/auth'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import React from 'react'
 import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 import { z } from 'zod'
 
 const formSchema = z.object({
@@ -17,6 +22,8 @@ const formSchema = z.object({
 })
 
 const SignIn = () => {
+  const router = useRouter()
+
   const { control, handleSubmit } = useForm<z.infer<typeof formSchema>>({
     defaultValues: {
       email: '',
@@ -25,38 +32,49 @@ const SignIn = () => {
     resolver: zodResolver(formSchema)
   })
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log('Form submitted', values)
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const { email, password } = values
+
+    const userCredentials = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    )
+
+    const idToken = await userCredentials.user.getIdToken()
+
+    await signIn({ email, idToken })
+
+    router.push('/')
+
+    if (!idToken) {
+      toast.error('Failed to log in')
+      return
+    }
   }
 
   return (
-    <div className='shadow-input mx-auto w-full max-w-md bg-white/15 backdrop-blur-md p-8 rounded-2xl'>
-      <div className='flex flex-col gap-6 py-4 justify-center items-center'>
-        <div className='flex flex-row gap-2 justify-center'>
-          <Image
-            src='/logo.svg'
-            width={38}
-            height={32}
-            alt='logo'
-          />
+    <div className='shadow-input mx-auto w-full max-w-md light-gradient dark:dark-gradient p-8 rounded-2xl'>
+      <div className='my-5 h-[1.5px] w-full bg-gradient-to-r from-transparent via-neutral-300 to-transparent dark:via-neutral-700' />
 
-          <h2 className='text-primary-100'>PrepWise</h2>
-        </div>
+      <div className='flex  flex-col gap-2'>
+        <h2 className='text-[27px] font-bold'>
+          Welcome to{' '}
+          <span className='bg-gradient-to-r from-primary-400 via-primary-200 to-primary-100 bg-clip-text text-transparent'>
+            PrepWise
+          </span>
+        </h2>
 
-        <div className='flex flex-col justify-center items-center gap-3'>
-          <h3 className='text-xl font-bold text-light-100'>
-            Practice job interview with AI
-          </h3>
-
-          <p className='text-sm text-neutral-600 dark:text-neutral-300 text-center'>
-            Take your interview to the next level with AI-powered questions and
-            answers.
-          </p>
-        </div>
+        <p className='text-[15px] text-gray-400'>
+          Take your interview to the next level with AI-powered questions and
+          answers.
+        </p>
       </div>
 
+      <div className='my-5 h-[1.5px] w-full bg-gradient-to-r from-transparent via-neutral-300 to-transparent dark:via-neutral-700' />
+
       <form
-        className='my-6'
+        className='my-6 mt-8'
         onSubmit={handleSubmit(onSubmit)}
       >
         <LabelInputContainer className='mb-5'>
@@ -81,33 +99,25 @@ const SignIn = () => {
           />
         </LabelInputContainer>
 
-        <div className='my-5 h-[1.5px] w-full bg-gradient-to-r from-transparent via-neutral-300 to-transparent dark:via-neutral-700' />
-
-        <Button type='submit'>
+        <Button
+          type='submit'
+          className='font-semibold w-full mt-6 bg-gradient-to-r from-primary-600  to-primary-400'
+        >
           Log in
-          <BottomGradient />
+          <ButtonGradient />
         </Button>
       </form>
 
-      <p className='text-center text-[15px]'>
+      <p className='text-center text-[15px] text-gray-400'>
         No account yet?
         <Link
           href='/sign-up'
-          className='font-bold ml-1'
+          className='font-bold ml-1 text-gray-300'
         >
           Sign up
         </Link>
       </p>
     </div>
-  )
-}
-
-const BottomGradient = () => {
-  return (
-    <>
-      <span className='absolute inset-x-0 -bottom-px block h-px w-full bg-gradient-to-r from-transparent via-[rgba(120,119,200,0.6)] to-transparent opacity-0 transition duration-500 group-hover/btn:opacity-100' />
-      <span className='absolute inset-x-10 -bottom-px mx-auto block h-px w-1/2 bg-gradient-to-r from-transparent via-[rgba(120,119,200,0.9)] to-transparent opacity-0 blur-sm transition duration-500 group-hover/btn:opacity-100' />
-    </>
   )
 }
 

@@ -3,36 +3,60 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { auth } from '@/firebase/client'
+import { signUp } from '@/lib/actions/auth'
 import { cn } from '@/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
-import Image from 'next/image'
+import { createUserWithEmailAndPassword } from 'firebase/auth'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import React from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { z } from 'zod'
 
 const formSchema = z.object({
-  fullName: z.string().min(1, 'Full name is required'),
+  name: z.string().min(1, 'Name is required'),
   email: z.string().min(1, 'Email is required').email('Invalid email'),
   password: z.string().min(1, 'Password is required')
 })
 
 const SignUp = () => {
+  const router = useRouter()
+
   const { handleSubmit, control } = useForm<z.infer<typeof formSchema>>({
     defaultValues: {
-      fullName: '',
+      name: '',
       email: '',
       password: ''
     },
     resolver: zodResolver(formSchema)
   })
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
-      console.log('values: ', values)
+      const { name, email, password } = values
+
+      const userCredentials = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      )
+
+      const result = await signUp({
+        uid: userCredentials.user.uid,
+        name: name!,
+        email,
+        password
+      })
+
+      if (!result?.success) {
+        toast.error(result?.message)
+        return
+      }
 
       toast.success('Account created successfully')
+      router.push('/sign-in')
     } catch (error) {
       console.log(error)
       toast.error(`There was an error: ${error}`)
@@ -40,42 +64,36 @@ const SignUp = () => {
   }
 
   return (
-    <div className='shadow-input mx-auto w-full max-w-md bg-dark-300 backdrop-blur-xl p-8 rounded-2xl'>
-      <div className='flex flex-col gap-6 py-4 justify-center items-center'>
-        <div className='flex flex-row gap-2 justify-center'>
-          <Image
-            src='/logo.svg'
-            width={38}
-            height={32}
-            alt='logo'
-          />
+    <div className='shadow-input mx-auto w-full max-w-md light-gradient dark:dark-gradient p-8 rounded-2xl'>
+      <div className='my-5 h-[1.5px] w-full bg-gradient-to-r from-transparent via-neutral-300 to-transparent dark:via-neutral-700' />
 
-          <h2 className='text-primary-100'>PrepWise</h2>
-        </div>
+      <div className='flex  flex-col gap-2'>
+        <h2 className='text-[27px] font-bold'>
+          Start with{' '}
+          <span className='bg-gradient-to-r from-primary-400 via-primary-200 to-primary-100 bg-clip-text text-transparent'>
+            PrepWise
+          </span>
+        </h2>
 
-        <div className='flex flex-col justify-center items-center gap-2'>
-          <h3 className='text-xl font-bold text-light-100'>
-            Practice job interview with AI
-          </h3>
-
-          <p className='text-sm text-neutral-600 dark:text-neutral-300 text-center'>
-            Take your interview to the next level with AI-powered questions and
-            answers.
-          </p>
-        </div>
+        <p className='text-[15px] text-gray-400'>
+          Take your interview to the next level with AI-powered questions and
+          answers.
+        </p>
       </div>
 
+      <div className='my-5 h-[1.5px] w-full bg-gradient-to-r from-transparent via-neutral-300 to-transparent dark:via-neutral-700' />
+
       <form
-        className='my-6'
+        className='my-6 mt-8'
         onSubmit={handleSubmit(onSubmit)}
       >
         <LabelInputContainer className='mb-5'>
-          <Label htmlFor='fullName'>First name</Label>
+          <Label htmlFor='name'>First name</Label>
           <Input
-            id='fullName'
+            id='name'
             placeholder='Tyler'
             type='text'
-            name='fullName'
+            name='name'
             control={control}
           />
         </LabelInputContainer>
@@ -102,22 +120,20 @@ const SignUp = () => {
           />
         </LabelInputContainer>
 
-        <div className='my-5 h-[1.5px] w-full bg-gradient-to-r from-transparent via-neutral-300 to-transparent dark:via-neutral-700' />
-
         <Button
           type='submit'
-          className='text-gray-800 font-semibold'
+          className='font-semibold w-full mt-6 bg-gradient-to-r from-primary-600  to-primary-400'
         >
           Create and account
           <BottomGradient />
         </Button>
       </form>
 
-      <p className='text-center text-[15px]'>
+      <p className='text-center text-[15px] text-gray-400'>
         Have an account already?
         <Link
           href='/sign-in'
-          className='font-bold ml-1'
+          className='font-bold ml-1 text-gray-300'
         >
           Sign in
         </Link>

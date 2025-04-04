@@ -1,10 +1,9 @@
 'use client'
 
+import { ProgressProvider } from '@bprogress/next/app'
 import React from 'react'
 
-import { ProgressProvider } from '@bprogress/next/app'
-
-function ProgressBarProvider({ children }: { children: React.ReactNode }) {
+const NProgressProvider = ({ children }: { children: React.ReactNode }) => {
   return (
     <>
       <ProgressProvider
@@ -19,4 +18,4 @@ function ProgressBarProvider({ children }: { children: React.ReactNode }) {
   )
 }
 
-export default ProgressBarProvider
+export default NProgressProvider

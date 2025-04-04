@@ -1,7 +1,12 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/* @custom-variant dark (&:is(.dark *)); */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: hsl(0 0% 100%);
+  --foreground: hsl(0 0% 3.9%);
+}
 
 @theme {
   --color-success-100: #49de50;
@@ -9,8 +14,14 @@
   --color-destructive-100: #f75353;
   --color-destructive-200: #c44141;
 
-  --color-primary-100: #dddfff;
-  --color-primary-200: #cac5fe;
+  --color-primary-100: #B4EBE6;
+  --color-primary-200: #80CBC4;
+  --color-primary-300: #49b5af;
+  --color-primary-400: #2c8c87;
+  --color-primary-500: #1a6d68;
+  --color-primary-600: #135550;
+  --color-primary-700: #0e413c;
+  --color-primary-800: #36BA98;
 
   --color-light-100: #d6e0ff;
   --color-light-400: #6870a6;
@@ -20,10 +31,7 @@
   --color-dark-100: #020408;
   --color-dark-200: #27282f;
   --color-dark-300: #242633;
-
-  --font-mona-sans: "Mona Sans", sans-serif;
-
-  --bg-pattern: url("/pattern.png");
+  --color-dark-400: #14141f;
 }
 
 :root {
@@ -59,40 +67,6 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
-}
-
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
 }
 
 @theme inline {
@@ -140,6 +114,12 @@
 }
 
 @layer base {
+
+  html,
+  body {
+    @apply h-full w-full;
+  }
+
   * {
     @apply border-border outline-ring/50;
   }
@@ -149,15 +129,15 @@
   }
 
   p {
-    @apply text-light-100;
+    @apply text-black dark:text-white;
   }
 
   h2 {
-    @apply text-3xl font-semibold;
+    @apply text-3xl font-semibold text-black dark:text-white;
   }
 
   h3 {
-    @apply text-2xl font-semibold;
+    @apply text-black dark:text-white text-2xl font-semibold;
   }
 
   ul {
@@ -167,4 +147,55 @@
   li {
     @apply text-light-100;
   }
+}
+
+@layer components {
+
+  .root-layout {
+    @apply flex mx-auto max-w-7xl flex-col gap-12 my-12 px-16 max-sm:px-4 max-sm:my-8;
+  }
+
+  .interviews-section {
+    @apply flex flex-wrap gap-4 max-lg:flex-col w-full items-stretch;
+  }
+
+  .card-border {
+    @apply light-border-gradient dark:dark-border-gradient p-0.5 rounded-2xl w-fit;
+  }
+
+  .card-interview {
+    @apply light-gradient dark:dark-gradient rounded-2xl min-h-full flex flex-col p-6 relative overflow-hidden gap-10 justify-between;
+
+    .badge-text {
+      @apply text-sm font-semibold capitalize;
+    }
+  }
+
+  .tech-tooltip {
+    @apply absolute bottom-full mb-1 hidden group-hover:flex px-2 py-1 text-xs text-white bg-gray-700 rounded-md shadow-md;
+  }
+}
+
+@utility dark-gradient {
+  @apply bg-gradient-to-b from-[#1A1C20] to-[#08090D];
+}
+
+@utility flex-center {
+  @apply flex items-center justify-center;
+}
+
+@utility light-gradient {
+  @apply bg-gradient-to-b from-[#feffff] to-[#e7e6e6];
+}
+
+@utility blue-gradient-dark {
+  @apply bg-gradient-to-b from-[#171532] to-[#08090D];
+}
+
+@utility dark-border-gradient {
+  @apply bg-gradient-to-b from-[#626263] to-[#6c6d6f33];
+}
+
+@utility light-border-gradient {
+  @apply bg-gradient-to-b from-[#e8e8e9] to-[#43434533];
 }

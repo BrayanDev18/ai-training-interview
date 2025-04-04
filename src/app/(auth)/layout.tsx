@@ -1,14 +1,17 @@
+import { isAuthenticated } from '@/lib/actions/auth'
+import { redirect } from 'next/navigation'
 import React from 'react'
 
-export default function AuthLayout({
+export default async function AuthLayout({
   children
 }: {
   children: React.ReactNode
 }) {
+  const isUserAuthenticated = await isAuthenticated()
+
+  if (isUserAuthenticated) redirect('/')
+
   return (
-    <div className='flex items-center h-screen justify-center'>
-      <div className='absolute top-0 z-[-2] h-screen w-screen bg-neutral-950 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.3),rgba(255,255,255,0))]'></div>
-      {children}
-    </div>
+    <div className='flex items-center h-screen justify-center '>{children}</div>
   )
 }
